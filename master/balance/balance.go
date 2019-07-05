@@ -25,6 +25,10 @@ func (this *random) GetRightNode() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if len(ips) == 0 {
+		err = errors.New("no node")
+		return "", err
+	}
 	index := utils.RangeInt(0, len(ips) -1)
 	return ips[index], nil
 }

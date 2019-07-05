@@ -87,6 +87,7 @@ func DistributeJob(ip string, jobs common.Jobs) error {
 
 // 向某个节点注销job
 func UnDistributeJob(ip string, jobName string) error {
+	EtcdClient.KV.Delete(context.Background(), conf.MasterConf.Jobs + jobName)
 	if _, err := EtcdClient.KV.Delete(context.Background(), utils.ExtractJobSave(ip, jobName)); err != nil {
 		logs.ERROR(err)
 		return err

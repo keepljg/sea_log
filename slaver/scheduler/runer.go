@@ -215,7 +215,7 @@ func (this *Scheduler) CalculatingPressure() {
 			counts = append(counts, count)
 		case <-t.C:
 			for _, count := range counts {
-				nodeInfo.LogCount += count
+				nodeInfo.LogCount += int64(count)
 			}
 
 			// 上报信息

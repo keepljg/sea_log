@@ -1,7 +1,7 @@
 package common
 
 type NodeInfo struct {
-	LogCount int `json:"log_count"`
+	LogCount int64 `json:"log_count"`
 	JobCount int `json:"job_count"`
 }
 

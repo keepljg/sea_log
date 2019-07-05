@@ -2,8 +2,8 @@ package etcd
 
 import (
 	"context"
-	"fmt"
 	"go.etcd.io/etcd/clientv3"
+	"sea_log/common"
 	"testing"
 	"time"
 )
@@ -21,19 +21,22 @@ func TestInitJobMgr(t *testing.T) {
 	if client, err = clientv3.New(config); err != nil {
 		panic(err)
 	}
-	//fmt.Println(client.KV.Put(context.Background(), "/test/1", ""))
-	clientv3.WithKeysOnly()
-	fmt.Println(client.KV.Put(context.Background(), "/test/2/2", ""))
-	fmt.Println(client.KV.Put(context.Background(), "/test/1/3", ""))
-	//client.KV.Delete(context.Background(), "/test/1/", clientv3.WithPrefix())
-	//fmt.Println(client.KV.Delete(context.Background(), "test/1"))
-	resp, err :=client.KV.Get(context.Background(), "/test/", clientv3.WithKeysOnly(), clientv3.WithPrefix())
-	if err != nil {
-		fmt.Println(err)
+	job := common.Jobs{
+		JobName:   "test",
+		Topic:     "test",
+		IndexType: "doc",
+		Pipeline:  "",
 	}
-	for _, v := range resp.Kvs {
-		fmt.Println(string(v.Key))
-	}
+	jobByte, _ := common.PackJob(job)
+	client.KV.Put(context.Background(), "/master/jobs/test", string(jobByte))
+
+	//resp, err :=client.KV.Get(context.Background(), "/test/", clientv3.WithKeysOnly(), clientv3.WithPrefix())
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//for _, v := range resp.Kvs {
+	//	fmt.Println(string(v.Key))
+	//}
 	//resp := clientv3.OpGet(utils.JOB_LOCK_DIR + "tutuapp_test",clientv3.WithPrefix())
 	//fmt.Println(string(resp.KeyBytes()))
 	//fmt.Println(string(resp.ValueBytes()))

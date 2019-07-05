@@ -72,7 +72,7 @@ func (this *lessPree) GetRightNode() (string, error) {
 		minLogCount int
 	)
 	for ip, nodeInfo := range nodeinfos {
-		if minLogCount <= nodeInfo.LogCount {
+		if int64(minLogCount) <= nodeInfo.LogCount {
 			currIp = ip
 			minLogCount = nodeInfo.JobCount
 		}

@@ -11,10 +11,9 @@ import (
 )
 
 type Scheduler struct {
-	b balance.Balancer
+	b      balance.Balancer
 	jobRun chan common.Jobs
 	jobEnd chan string
-
 }
 
 func newScheduler(b balance.Balancer) *Scheduler {
@@ -38,10 +37,14 @@ func (this *Scheduler) ListenJob() {
 	if err != nil {
 		panic(err)
 	}
-	// 启动时先将etcd中的topic消费
+
+	// 启动时先将etcd中的 job 消费
+	allRunJob := etcd.GetAllRuningJob()
 	for _, v := range getResp.Kvs {
 		if job, err := common.UnPackJob(v.Value); err == nil {
-			this.jobRun <- *job
+			if _, ok := allRunJob[job.JobName]; !ok {
+				this.jobRun <- *job
+			}
 		}
 	}
 	go func() {
@@ -59,18 +62,22 @@ func (this *Scheduler) ListenJob() {
 					this.jobEnd <- string(v.Kv.Key)
 				}
 			}
-			}
+		}
 	}()
 }
-
 
 func (this *Scheduler) StartLogJob() {
 	var job common.Jobs
 	for {
 		select {
-		case job = <- this.jobRun:
-			if ip, err := this.b.GetRightNode(); err == nil {
+		case job = <-this.jobRun:
+			runJobs := etcd.GetAllRuningJob()
+			if ip, ok := runJobs[job.JobName]; ok { // 更新job
 				etcd.DistributeJob(ip, job)
+			} else {
+				if ip, err := this.b.GetRightNode(); err == nil {
+					etcd.DistributeJob(ip, job)
+				}
 			}
 		}
 	}
@@ -80,7 +87,7 @@ func (this *Scheduler) EndLogJob() {
 	var jobName string
 	for {
 		select {
-		case jobName = <- this.jobEnd:
+		case jobName = <-this.jobEnd:
 			jobNodeInfo := etcd.GetAllRuningJob()
 			if ip, ok := jobNodeInfo[jobName]; ok {
 				etcd.UnDistributeJob(ip, jobName)
@@ -94,7 +101,7 @@ func (this *Scheduler) restartLogJob() {
 	t := time.NewTimer(time.Minute)
 	for {
 		select {
-		case <- t.C:
+		case <-t.C:
 			allJobs := etcd.GetAllJob()
 			allRunJob := etcd.GetAllRuningJob()
 			if len(allRunJob) > len(allJobs) {
@@ -102,7 +109,7 @@ func (this *Scheduler) restartLogJob() {
 			}
 			for jobName, job := range allJobs {
 				if _, ok := allRunJob[jobName]; !ok {
-					this.jobRun<- *job
+					this.jobRun <- *job
 				}
 			}
 			t.Reset(time.Minute)

@@ -94,3 +94,6 @@ func UnDistributeJob(ip string, jobName string) error {
 	}
 	return nil
 }
+
+
+

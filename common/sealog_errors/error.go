@@ -27,6 +27,10 @@ var errorMsgs = map[string]errorMsg{
 		Code:    1003,
 		Message: "节点注册job失败",
 	},
+	"get_node_fail": errorMsg{
+		Code:	1004,
+		Message: "获取不到节点",
+	},
 }
 
 func GetError(err error) errorMsg {

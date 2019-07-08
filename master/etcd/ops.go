@@ -7,6 +7,7 @@ import (
 	"sea_log/logs"
 	"sea_log/master/conf"
 	"sea_log/master/utils"
+	"fmt"
 )
 
 // 获取当前全部节点
@@ -73,6 +74,8 @@ func GetAllRuningJob() map[string]string {
 
 // 向某个节点注册job
 func DistributeJob(ip string, jobs common.Jobs) error {
+	fmt.Println(ip)
+	fmt.Println("come in")
 	jobBytes, err := common.PackJob(jobs)
 	if err != nil {
 		logs.ERROR(err)

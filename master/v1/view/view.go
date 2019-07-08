@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sea_log/master/etcd"
 	"sea_log/master/utils"
+	"fmt"
 )
 
 func Mapping(prefix string, app *gin.Engine) {
@@ -17,6 +18,7 @@ func Mapping(prefix string, app *gin.Engine) {
 
 func ListAllLogJob(ctx *gin.Context) {
 	data := etcd.GetAllJob()
+	fmt.Println(data)
 	ctx.JSON(utils.SuccessWithDate(data))
 	return
 }

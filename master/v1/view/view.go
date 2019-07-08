@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"sea_log/master/etcd"
+	"sea_log/master/utils"
 )
 
 func Mapping(prefix string, app *gin.Engine) {
@@ -16,11 +17,7 @@ func Mapping(prefix string, app *gin.Engine) {
 
 func ListAllLogJob(ctx *gin.Context) {
 	data := etcd.GetAllJob()
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "success",
-		"data":    data,
-	})
+	ctx.JSON(utils.SuccessWithDate(data))
 	return
 }
 
@@ -33,21 +30,13 @@ func ListNodes(ctx *gin.Context) {
 			"data":    "",
 		})
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{
-			"code":    200,
-			"message": "success",
-			"data":    data,
-		})
+		ctx.JSON(utils.SuccessWithDate(data))
 	}
 	return
 }
 
 func ListNodePree(ctx *gin.Context) {
 	data := etcd.GetNodeInfo()
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "success",
-		"data":    data,
-	})
+	ctx.JSON(utils.SuccessWithDate(data))
 	return
 }

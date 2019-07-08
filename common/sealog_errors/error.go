@@ -27,6 +27,11 @@ var errorMsgs = map[string]errorMsg{
 		Code:    1003,
 		Message: "节点注册job失败",
 	},
+
+	"undistributeJob_error": errorMsg{
+		Code:    1004,
+		Message: "节点删除job失败",
+	},
 }
 
 func GetError(err error) errorMsg {

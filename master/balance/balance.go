@@ -10,8 +10,8 @@ type Balancer interface {
 	GetRightNode() (string, error)
 }
 
-var BlanceMapping = map[string]func()Balancer {
-	"random": Random,
+var BlanceMapping = map[string]func() Balancer{
+	"random":   Random,
 	"lessConn": LessConn,
 	"lessPree": LessPree,
 }
@@ -29,7 +29,7 @@ func (this *random) GetRightNode() (string, error) {
 		err = errors.New("no node")
 		return "", err
 	}
-	index := utils.RangeInt(0, len(ips) -1)
+	index := utils.RangeInt(0, len(ips)-1)
 	return ips[index], nil
 }
 
@@ -41,13 +41,13 @@ func Random() Balancer {
 type lessConn struct {
 }
 
-func (this *lessConn)  GetRightNode() (string, error) {
-	nodeinfos :=  etcd.GetNodeInfo()
+func (this *lessConn) GetRightNode() (string, error) {
+	nodeinfos := etcd.GetNodeInfo()
 	if len(nodeinfos) == 0 {
 		return "", errors.New("have no node")
 	}
 	var (
-		currIp string
+		currIp      string
 		minJobCount int
 	)
 	for ip, nodeInfo := range nodeinfos {
@@ -67,12 +67,12 @@ type lessPree struct {
 }
 
 func (this *lessPree) GetRightNode() (string, error) {
-	nodeinfos :=  etcd.GetNodeInfo()
+	nodeinfos := etcd.GetNodeInfo()
 	if len(nodeinfos) == 0 {
 		return "", errors.New("have no node")
 	}
 	var (
-		currIp string
+		currIp      string
 		minLogCount int
 	)
 	for ip, nodeInfo := range nodeinfos {
@@ -87,5 +87,3 @@ func (this *lessPree) GetRightNode() (string, error) {
 func LessPree() Balancer {
 	return &lessPree{}
 }
-
-

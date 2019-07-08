@@ -13,11 +13,6 @@ type errorMsg struct {
 }
 
 var errorMsgs = map[string]errorMsg{
-	"default_error": errorMsg{
-		Code:    1001,
-		Message: "default_error",
-	},
-
 	"params_error": errorMsg{
 		Code:    1002,
 		Message: "参数解析有误",
@@ -35,8 +30,11 @@ var errorMsgs = map[string]errorMsg{
 }
 
 func GetError(err error) errorMsg {
-	if err == nil {
-		return errorMsgs["default_error"]
+	if _, ok := errorMsgs[err.Error()]; !ok {
+		return errorMsg{
+			Code:    1001,
+			Message: err.Error(),
+		}
 	}
 	return errorMsgs[err.Error()]
 }
@@ -44,10 +42,9 @@ func GetError(err error) errorMsg {
 func MiddlewareError(handlefunc errorHandlefunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err1 := handlefunc(ctx)
-		if err1 == nil {
-			return
+		if err1 != nil {
+			err2 := GetError(err1)
+			ctx.AbortWithStatusJSON(http.StatusOK, err2)
 		}
-		err2 := GetError(err1)
-		ctx.AbortWithStatusJSON(http.StatusOK, err2)
 	}
 }

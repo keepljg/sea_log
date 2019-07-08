@@ -21,9 +21,9 @@ func initEnv() {
 
 func main() {
 	var (
-		err error
+		err  error
 		quit chan os.Signal
-		s *fasthttp.Server
+		s    *fasthttp.Server
 	)
 	// 初始化配置
 	if err = conf.InitConf(); err != nil {

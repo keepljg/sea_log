@@ -3,53 +3,48 @@ package admin
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"sea_log/common"
 	"sea_log/common/sealog_errors"
+	"sea_log/master/balance"
+	"sea_log/master/conf"
+	"sea_log/master/etcd"
 	"sea_log/master/utils"
-	"sea_log/master/v1/forms"
 )
 
 func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
-	admin.POST("/job", adminError(AddLogJob))
-	admin.DELETE("/job", adminError(DelLogJob))
-	admin.GET("bulk/job", adminError(BulkAddLogJob))
-	admin.DELETE("bulk/job", adminError(BulkDelLogJob))
-}
-
-type adminHandlefunc func(*gin.Context) error
-
-func adminError(handlefunc adminHandlefunc) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		err1 := handlefunc(ctx)
-		if err1 == nil {
-			return
-		}
-		err2 := sealog_errors.GetError(err1)
-		ctx.AbortWithStatusJSON(http.StatusOK, err2)
-	}
+	admin.POST("/job", sealog_errors.MiddlewareError(AddLogJob))
+	admin.DELETE("/job", sealog_errors.MiddlewareError(DelLogJob))
+	admin.GET("bulk/job", sealog_errors.MiddlewareError(BulkAddLogJob))
+	admin.DELETE("bulk/job", sealog_errors.MiddlewareError(BulkDelLogJob))
 }
 
 func AddLogJob(ctx *gin.Context) error {
-	var addLogJobForm forms.AddLogJobForm
-	if ctx.ShouldBind(&addLogJobForm) != nil {
+	var jobs common.Jobs
+	if ctx.ShouldBind(&jobs) != nil {
 		return errors.New("params_error")
 	}
-	//ip, err := balance.BlanceMapping[conf.BalanceConf.Name]().GetRightNode()
-	//runJobs := etcd.GetAllRuningJob()
-	//if ip, ok := runJobs[addLogJobForm.JobName]; ok { // 更新job
-	//	etcd.DistributeJob(ip, job)
-	//} else {
-	//	if ip, err := this.b.GetRightNode(); err == nil {
-	//		etcd.DistributeJob(ip, job)
-	//	}
-	//}
-	//etcd.DistributeJob( )
+
+	runJobs := etcd.GetAllRuningJob()
+	if ip, ok := runJobs[jobs.JobName]; ok { // 更新job
+		err := etcd.DistributeJob(ip, jobs)
+		if err != nil {
+			return errors.New("distributeJob_error")
+		}
+	} else {
+		if ip, err := balance.BlanceMapping[conf.BalanceConf.Name]().GetRightNode(); err == nil {
+			err := etcd.DistributeJob(ip, jobs)
+			if err != nil {
+				return errors.New("distributeJob_error")
+			}
+		}
+	}
 	ctx.JSON(utils.Success())
 	return nil
 }
 
 func DelLogJob(ctx *gin.Context) error {
+
 	return nil
 }
 

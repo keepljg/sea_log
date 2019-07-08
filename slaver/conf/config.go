@@ -8,7 +8,6 @@ import (
 	"strings"
 )
 
-
 type Etcd struct {
 	Addr        string
 	EtcdTimeOut int

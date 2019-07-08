@@ -7,10 +7,10 @@ type NodeInfo struct {
 
 // log 任务
 type Jobs struct {
-	JobName   string `json:"job_name"`
-	Topic     string `json:"topic"`
-	IndexType string `json:"index_type"`
-	Pipeline  string `json:"pipeline"`
+	JobName   string `form:"jobName" json:"jobName" binding:"required"`
+	Topic     string `form:"topic" json:"topic" binding:"required"`
+	IndexType string `form:"indexType" json:"indexType" binding:"required"`
+	Pipeline  string `form:"pipeline" json:"pipeline" binding:"required"`
 }
 
 type NodeLogInfos []NodeInfo

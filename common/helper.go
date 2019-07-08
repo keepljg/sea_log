@@ -2,11 +2,10 @@ package common
 
 import "encoding/json"
 
-func UnmarshalJobInfo(info []byte) (nodeInfo NodeInfo, err error){
+func UnmarshalJobInfo(info []byte) (nodeInfo NodeInfo, err error) {
 	err = json.Unmarshal(info, &nodeInfo)
 	return
 }
-
 
 func UnPackJob(value []byte) (*Jobs, error) {
 	var (
@@ -19,7 +18,6 @@ func UnPackJob(value []byte) (*Jobs, error) {
 	return &job, nil
 }
 
-
-func PackJob(jobs Jobs) ([]byte, error){
+func PackJob(jobs Jobs) ([]byte, error) {
 	return json.Marshal(&jobs)
 }

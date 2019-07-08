@@ -8,7 +8,6 @@ import (
 	"sea_log/master/balance"
 	"sea_log/master/conf"
 	"sea_log/master/etcd"
-	"sea_log/master/utils"
 )
 
 func Mapping(prefix string, app *gin.Engine) {
@@ -40,7 +39,7 @@ func AddLogJob(ctx *gin.Context) error {
 			}
 		}
 	}
-	ctx.JSON(utils.Success())
+	ctx.JSON(common.Success())
 	return nil
 }
 
@@ -62,7 +61,7 @@ func DelLogJob(ctx *gin.Context) error {
 			return errors.New("distributeJob_error")
 		}
 	}
-	ctx.JSON(utils.Success())
+	ctx.JSON(common.Success())
 	return nil
 }
 

@@ -3,9 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"math/rand"
-	"net/http"
 	"sea_log/master/conf"
 	"strings"
 	"time"
@@ -35,19 +33,4 @@ func ExtractJobSave(ip, name string) string {
 func RangeInt(start, end int) int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return r.Intn(end-start+1) + start
-}
-
-func Success() (int, interface{}) {
-	return http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	}
-}
-
-func SuccessWithDate(data interface{}) (int, interface{}) {
-	return http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    data,
-	}
 }

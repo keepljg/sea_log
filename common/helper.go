@@ -1,6 +1,10 @@
 package common
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
 
 func UnmarshalJobInfo(info []byte) (nodeInfo NodeInfo, err error) {
 	err = json.Unmarshal(info, &nodeInfo)
@@ -20,4 +24,19 @@ func UnPackJob(value []byte) (*Jobs, error) {
 
 func PackJob(jobs Jobs) ([]byte, error) {
 	return json.Marshal(&jobs)
+}
+
+func Success() (int, interface{}) {
+	return http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+	}
+}
+
+func SuccessWithDate(data interface{}) (int, interface{}) {
+	return http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    data,
+	}
 }

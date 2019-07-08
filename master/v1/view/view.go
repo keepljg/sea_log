@@ -1,11 +1,11 @@
 package view
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"sea_log/common"
 	"sea_log/master/etcd"
-	"sea_log/master/utils"
-	"fmt"
 )
 
 func Mapping(prefix string, app *gin.Engine) {
@@ -19,7 +19,7 @@ func Mapping(prefix string, app *gin.Engine) {
 func ListAllLogJob(ctx *gin.Context) {
 	data := etcd.GetAllJob()
 	fmt.Println(data)
-	ctx.JSON(utils.SuccessWithDate(data))
+	ctx.JSON(common.SuccessWithDate(data))
 	return
 }
 
@@ -32,13 +32,13 @@ func ListNodes(ctx *gin.Context) {
 			"data":    "",
 		})
 	} else {
-		ctx.JSON(utils.SuccessWithDate(data))
+		ctx.JSON(common.SuccessWithDate(data))
 	}
 	return
 }
 
 func ListNodePree(ctx *gin.Context) {
 	data := etcd.GetNodeInfo()
-	ctx.JSON(utils.SuccessWithDate(data))
+	ctx.JSON(common.SuccessWithDate(data))
 	return
 }

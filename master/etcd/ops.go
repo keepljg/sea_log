@@ -2,12 +2,12 @@ package etcd
 
 import (
 	"context"
+	"fmt"
 	"github.com/coreos/etcd/clientv3"
 	"sea_log/common"
 	"sea_log/logs"
 	"sea_log/master/conf"
 	"sea_log/master/utils"
-	"fmt"
 )
 
 // 获取当前全部节点
@@ -97,6 +97,3 @@ func UnDistributeJob(ip string, jobName string) error {
 	}
 	return nil
 }
-
-
-

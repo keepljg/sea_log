@@ -23,9 +23,9 @@ var errorMsgs = map[string]errorMsg{
 		Message: "节点注册job失败",
 	},
 
-	"get_node_fail": errorMsg{
+	"get_node_error": errorMsg{
 		Code:    1004,
-		Message: "获取不到节点",
+		Message: "获取节点失败",
 	},
 
 	"undistributeJob_error": errorMsg{

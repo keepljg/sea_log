@@ -31,16 +31,16 @@ func AddLogJob(ctx *gin.Context) error {
 	if ip, ok := runJobs[jobs.JobName]; ok { // 更新job
 		err := etcd.DistributeJob(ip, jobs)
 		if err != nil {
-			return errors.New("distributeJob_error")
+			return err
 		}
 	} else {
 		if ip, err := balance.BlanceMapping[conf.BalanceConf.Name]().GetRightNode(); err == nil {
 			err := etcd.DistributeJob(ip, jobs)
 			if err != nil {
-				return errors.New("distributeJob_error")
+				return err
 			}
 		} else {
-			return errors.New("get_nodes_fail")
+			return errors.New("get_node_error")
 		}
 	}
 	ctx.JSON(common.Success())
@@ -62,62 +62,66 @@ func DelLogJob(ctx *gin.Context) error {
 	if ip, ok := jobNodeInfo[delLogJobForm.JobName]; ok {
 		err := etcd.UnDistributeJob(ip, delLogJobForm.JobName)
 		if err != nil {
-			return errors.New("distributeJob_error")
+			return err
 		}
 	}
 	ctx.JSON(common.Success())
 	return nil
 }
 
-type AddBulkStrings struct {
+type BulkAddLogJobForm struct {
 	Jobs string `form:"jobs" json:"jobs" binding:"required"`
 }
 
 func BulkAddLogJob(ctx *gin.Context) error {
-	var addBulkStrings AddBulkStrings
+	var bulkAddLogJobForm BulkAddLogJobForm
 	var jobs common.Jobs
-	if err := ctx.ShouldBind(&addBulkStrings); err != nil {
-		return err
-	} else {
-		data_slice := strings.Split(addBulkStrings.Jobs, ";")
-		runJobs := etcd.GetAllRuningJob()
-		for i := range data_slice {
-			if err := json.Unmarshal([]byte(data_slice[i]), &jobs); err != nil {
-				return errors.New("params_error")
-			} else {
-				if ip, ok := runJobs[jobs.JobName]; ok { // 更新job
-					etcd.DistributeJob(ip, jobs)
-				} else {
-					if ip, err := balance.BlanceMapping[conf.BalanceConf.Name]().GetRightNode(); err == nil {
-						etcd.DistributeJob(ip, jobs)
-					} else {
-						return err
-					}
+	if err := ctx.ShouldBind(&bulkAddLogJobForm); err != nil {
+		return errors.New("params_error")
+	}
+	data_slice := strings.Split(bulkAddLogJobForm.Jobs, ";")
+	runJobs := etcd.GetAllRuningJob()
+	for i := range data_slice {
+		if err := json.Unmarshal([]byte(data_slice[i]), &jobs); err != nil {
+			return err
+		}
+		if ip, ok := runJobs[jobs.JobName]; ok { // 更新job
+			if err := etcd.DistributeJob(ip, jobs); err != nil {
+				return err
+			}
+		} else {
+			if ip, err := balance.BlanceMapping[conf.BalanceConf.Name]().GetRightNode(); err == nil {
+				if err := etcd.DistributeJob(ip, jobs); err != nil {
+					return err
 				}
+			} else {
+				return err
 			}
 		}
-		ctx.JSON(common.Success())
 	}
+	ctx.JSON(common.Success())
 	return nil
 }
 
 type DeleteBulkStrings struct {
-	JobNames string `form:"jobnames" json:"jobnames" binding:"required"`
+	JobNames string `form:"jobNames" json:"jobNames" binding:"required"`
 }
 
 func BulkDelLogJob(ctx *gin.Context) error {
 	var deleteBulkStrings DeleteBulkStrings
 	if err := ctx.ShouldBind(&deleteBulkStrings); err != nil {
 		return errors.New("params_error")
-	} else {
-		data_slice := strings.Split(deleteBulkStrings.JobNames, ",")
-		jobNodeInfo := etcd.GetAllRuningJob()
-		for i := range data_slice {
-			if ip, ok := jobNodeInfo[data_slice[i]]; ok {
-				etcd.UnDistributeJob(ip, data_slice[i])
+	}
+
+	data_slice := strings.Split(deleteBulkStrings.JobNames, ",")
+	jobNodeInfo := etcd.GetAllRuningJob()
+	for i := range data_slice {
+		if ip, ok := jobNodeInfo[data_slice[i]]; ok {
+			if err := etcd.UnDistributeJob(ip, data_slice[i]); err != nil {
+				return err
 			}
 		}
-		ctx.JSON(common.Success())
 	}
+	ctx.JSON(common.Success())
 	return nil
 }

@@ -16,8 +16,8 @@ func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
 	admin.POST("/job", sealog_errors.MiddlewareError(AddLogJob))
 	admin.DELETE("/job", sealog_errors.MiddlewareError(DelLogJob))
-	admin.POST("bulk/job", sealog_errors.MiddlewareError(BulkAddLogJob))
-	admin.DELETE("bulk/job", sealog_errors.MiddlewareError(BulkDelLogJob))
+	admin.POST("/jobs", sealog_errors.MiddlewareError(BulkAddLogJob))
+	admin.DELETE("/jobs", sealog_errors.MiddlewareError(BulkDelLogJob))
 }
 
 //添加任务

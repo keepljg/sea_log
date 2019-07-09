@@ -6,9 +6,9 @@ import (
 )
 
 type Scheduler struct {
-	logCount     chan int
-	JobEventChan chan *utils.JobEvent
-	JobWorkTable map[string]*utils.JobWorkInfo
+	logCount        chan int
+	JobEventChan    chan *utils.JobEvent
+	JobWorkTable    map[string]*utils.JobWorkInfo
 	HeartCancelFunc context.CancelFunc
 }
 

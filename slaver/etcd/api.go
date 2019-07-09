@@ -165,4 +165,3 @@ func (this *JobMgr) ListLogLocks() (map[string]string, error) {
 func (this *JobMgr) CreateJobLock(jobName string) *JobLock {
 	return InitJobLock(jobName, this.Kv, this.Lease)
 }
-

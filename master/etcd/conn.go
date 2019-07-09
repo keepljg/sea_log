@@ -24,4 +24,3 @@ func InitJobMgr() error {
 	EtcdWatch = clientv3.NewWatcher(EtcdClient)
 	return nil
 }
-

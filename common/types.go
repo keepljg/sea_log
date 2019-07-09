@@ -2,23 +2,19 @@ package common
 
 type NodeInfo struct {
 	LogCount int64 `json:"log_count"`
-	JobCount int `json:"job_count"`
+	JobCount int   `json:"job_count"`
 }
-
-
 
 // log 任务
 type Jobs struct {
-	JobName   string `json:"job_name"`
-	Topic     string `json:"topic"`
-	IndexType string `json:"index_type"`
-	Pipeline  string `json:"pipeline"`
+	JobName   string `form:"jobName" json:"jobName" binding:"required"`
+	Topic     string `form:"topic" json:"topic" binding:"required"`
+	IndexType string `form:"indexType" json:"indexType" binding:"required"`
+	Pipeline  string `form:"pipeline" json:"pipeline" binding:"required"`
 }
-
 
 type NodeLogInfos []NodeInfo
 type NodeJobInfos []NodeInfo
-
 
 // 安装node的任务数排序
 func (this NodeLogInfos) Len() int {
@@ -35,7 +31,6 @@ func (this NodeLogInfos) Less(i, j int) bool {
 func (this NodeLogInfos) Swap(i, j int) {
 	this[i], this[j] = this[j], this[i]
 }
-
 
 // 安装node 单位时间log数排序
 func (this NodeJobInfos) Len() int {

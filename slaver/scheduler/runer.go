@@ -205,7 +205,7 @@ func (this *Scheduler) CalculatingPressure() {
 	//  用做信息上报和心跳
 	leaseId, _, _, cancelFunc, err := etcd.CreateLease(etcd.GjobMgr.Lease, 10)
 	if err != nil {
-		panic(fmt.Sprintf("CalculatingPressure CreateLease err: %v",err))
+		panic(fmt.Sprintf("CalculatingPressure CreateLease err: %v", err))
 	}
 	this.HeartCancelFunc = cancelFunc
 	t := time.NewTimer(time.Second * 10)

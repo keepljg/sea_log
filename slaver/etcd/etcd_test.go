@@ -30,7 +30,7 @@ func TestInitJobMgr(t *testing.T) {
 	//jobByte, _ := common.PackJob(job)
 	//client.KV.Put(context.Background(), "/master/jobs/test", string(jobByte))
 
-	resp, err :=client.KV.Delete(context.Background(), "/testlog", clientv3.WithPrefix(), clientv3.WithPrevKV())
+	resp, err :=client.KV.Delete(context.Background(), "/master", clientv3.WithPrefix(), clientv3.WithPrevKV())
 	if err != nil {
 		fmt.Println(err)
 	}

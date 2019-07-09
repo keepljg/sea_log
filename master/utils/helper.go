@@ -32,5 +32,5 @@ func ExtractJobSave(ip, name string) string {
 
 func RangeInt(start, end int) int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return r.Intn(end -start + 1) + start
+	return r.Intn(end-start+1) + start
 }

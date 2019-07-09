@@ -5,7 +5,6 @@ import (
 	"sea_log/common"
 )
 
-
 // log 任务事件
 type JobEvent struct {
 	EventType int

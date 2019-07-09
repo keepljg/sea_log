@@ -286,6 +286,5 @@ func InitHttpServer() *fasthttp.Server {
 		}
 	}()
 
-
 	return s
 }

@@ -5,12 +5,12 @@ import (
 	"github.com/coreos/etcd/clientv3"
 )
 
-func CreateLease(lease clientv3.Lease, ttl int64) (clientv3.LeaseID, <-chan *clientv3.LeaseKeepAliveResponse, context.Context, context.CancelFunc, error){
+func CreateLease(lease clientv3.Lease, ttl int64) (clientv3.LeaseID, <-chan *clientv3.LeaseKeepAliveResponse, context.Context, context.CancelFunc, error) {
 	var (
 		leaseGrantResp      *clientv3.LeaseGrantResponse
 		leaseId             clientv3.LeaseID
 		leaseKeepActiveChan <-chan *clientv3.LeaseKeepAliveResponse
-		err error
+		err                 error
 	)
 	ctx, cancelFunc := context.WithCancel(context.TODO())
 

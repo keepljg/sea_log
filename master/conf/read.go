@@ -12,7 +12,6 @@ type Etcd struct {
 	EtcdTimeOut int
 }
 
-
 type Job struct {
 	JobSave string
 	JobLock string
@@ -28,12 +27,11 @@ type Balance struct {
 }
 
 var (
-	EtcdConf  Etcd
-	JobConf   Job
-	MasterConf Master
+	EtcdConf    Etcd
+	JobConf     Job
+	MasterConf  Master
 	BalanceConf Balance
 )
-
 
 func InitConf() (err error) {
 	//confPath := GetRootPath() + "/slaver/conf/conf.ini"

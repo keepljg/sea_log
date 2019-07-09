@@ -47,6 +47,7 @@ func main() {
 	}
 
 	scheduler.InitScheduler()
+	panic()
 	defer scheduler.CancelSelf()
 
 	s = httpServer.InitHttpServer()

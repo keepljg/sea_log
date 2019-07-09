@@ -7,10 +7,10 @@ import (
 
 func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
-	admin.POST("add/job", AddLogJob)
-	admin.DELETE("del/job",  DelLogJob)
-	admin.GET("bulk/add/job", BulkAddLogJob)
-	admin.DELETE("bulk/del/job",  BulkDelLogJob)
+	admin.POST("/job", AddLogJob)
+	admin.DELETE("/job",  DelLogJob)
+	admin.GET("/bulk/job", BulkAddLogJob)
+	admin.DELETE("/bulk/job",  BulkDelLogJob)
 }
 
 

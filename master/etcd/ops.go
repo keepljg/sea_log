@@ -51,7 +51,6 @@ func GetAllJob() map[string]*common.Jobs {
 		}
 
 	}
-
 	return jobsNmae
 }
 

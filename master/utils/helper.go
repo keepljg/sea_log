@@ -10,7 +10,7 @@ import (
 )
 
 func GetNodeIp(key string) string {
-	return strings.TrimPrefix(key, conf.JobConf.JobInfo)
+	return strings.Replace(strings.TrimPrefix(key, conf.JobConf.JobInfo), "/", "", -1)
 }
 
 func ExtractJobName(jobKey string) string {

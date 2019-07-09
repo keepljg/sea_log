@@ -27,6 +27,10 @@ func AddLogJob(ctx *gin.Context) error {
 		return errors.New("params_error")
 	}
 
+	err := etcd.DistributeMasterJob(jobs)
+	if err != nil {
+		return err
+	}
 	runJobs := etcd.GetAllRuningJob()
 	if ip, ok := runJobs[jobs.JobName]; ok { // 更新job
 		err := etcd.DistributeJob(ip, jobs)

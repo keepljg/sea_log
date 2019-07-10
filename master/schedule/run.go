@@ -7,6 +7,7 @@ import (
 	"sea_log/master/balance"
 	"sea_log/master/conf"
 	"sea_log/master/etcd"
+	"strings"
 	"time"
 )
 
@@ -108,6 +109,8 @@ func (this *Scheduler) restartLogJob() {
 				panic("running job gt all job")
 			}
 			for jobName, job := range allJobs {
+				//去掉/master/job前缀
+				jobName = strings.Replace(jobName, conf.MasterConf.Jobs, "", -1)
 				if _, ok := allRunJob[jobName]; !ok {
 					this.jobRun <- *job
 				}

@@ -10,7 +10,7 @@ type Jobs struct {
 	JobName   string `form:"jobName" json:"jobName" binding:"required"`
 	Topic     string `form:"topic" json:"topic" binding:"required"`
 	IndexType string `form:"indexType" json:"indexType" binding:"required"`
-	Pipeline  string `form:"pipeline" json:"pipeline" binding:"required"`
+	Pipeline  string `form:"pipeline" json:"pipeline"`
 }
 
 type NodeLogInfos []NodeInfo

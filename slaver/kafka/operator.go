@@ -32,7 +32,7 @@ func SendToKafka(datas []string, topic string) error {
 	return err
 }
 
-func ConsumerFromKafka4(info *utils.JobWorkInfo, lock *etcd.JobLock, logCount chan int) {
+func ConsumerFromKafka(info *utils.JobWorkInfo, lock *etcd.JobLock, logCount chan int) {
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_0_1_0
 	client, err := sarama.NewClient([]string{conf.KafkaConf.Addr}, config)

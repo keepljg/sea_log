@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/valyala/fasthttp"
+	"context"
+	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
@@ -9,60 +10,68 @@ import (
 	"sea_log/slaver/conf"
 	"sea_log/slaver/es"
 	"sea_log/slaver/etcd"
-	"sea_log/slaver/httpServer"
 	"sea_log/slaver/kafka"
+	"sea_log/slaver/router"
 	"sea_log/slaver/scheduler"
+	"time"
 )
 
 // 初始化线程数
-func initEnv() {
+func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
 func main() {
-	var (
-		err  error
-		quit chan os.Signal
-		s    *fasthttp.Server
-	)
 	// 初始化配置
-	if err = conf.InitConf(); err != nil {
-		goto ERR
+	if err := conf.InitConf(); err != nil {
+		logs.ERROR(err)
+		return
 	}
-
-	initEnv()
 
 	// 初始化etcd
-	if err = etcd.InitJobMgr(); err != nil {
-		goto ERR
+	if err := etcd.InitJobMgr(); err != nil {
+		logs.ERROR(err)
+		return
 	}
 
-	//
-	if err = kafka.InitKafka(); err != nil {
-		goto ERR
+	//初始化kafka
+	if err := kafka.InitKafka(); err != nil {
+		logs.ERROR(err)
+		return
 	}
 
-	if err = es.InitElasticClient(); err != nil {
-		goto ERR
+	//初始化es
+	if err := es.InitElasticClient(); err != nil {
+		logs.ERROR(err)
+		return
 	}
 
 	scheduler.InitScheduler()
 	defer scheduler.CancelSelf()
 
-	s = httpServer.InitHttpServer()
-	quit = make(chan os.Signal)
+	router := router.Router()
+	srv := &http.Server{
+		Addr:    ":8100",
+		Handler: router,
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logs.FATAL("listen: %s\n", err)
+			return
+		}
+	}()
+
+	// 等待中断信号以优雅地关闭服务器(等待5秒)
+	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-
 	logs.INFO("Shutdown Server ...")
 
-	if err := s.Shutdown(); err != nil {
-		logs.ERROR(err)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logs.FATAL("Server Shutdown:", err)
+		return
 	}
-
 	logs.INFO("Server exiting")
-
-ERR:
-	logs.ERROR(err)
-	return
 }

@@ -77,7 +77,7 @@ func (this *Scheduler) eventWorker(job *common.Jobs) {
 		jobWorkInfo = utils.NewJobWorkInfo(job)
 		if jobWork, ok := this.JobWorkTable[job.Topic]; !ok {
 			this.JobWorkTable[job.Topic] = jobWorkInfo
-			kafka.ConsumerFromKafka4(jobWorkInfo, jobLock, this.logCount)
+			kafka.ConsumerFromKafka(jobWorkInfo, jobLock, this.logCount)
 		} else {
 			// 重新开启新任务
 			this.reEventWork(jobWork, job, jobLock)
@@ -95,7 +95,7 @@ func (this *Scheduler) reEventWork(jobWork *utils.JobWorkInfo, newJob *common.Jo
 	delete(this.JobWorkTable, jobWork.Job.Topic)
 	jobWorkInfo = utils.NewJobWorkInfo(newJob)
 	this.JobWorkTable[newJob.Topic] = jobWorkInfo
-	kafka.ConsumerFromKafka4(jobWorkInfo, lock, this.logCount)
+	kafka.ConsumerFromKafka(jobWorkInfo, lock, this.logCount)
 }
 
 // 处理日志任务

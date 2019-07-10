@@ -16,8 +16,8 @@ func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
 	admin.POST("/job", sealog_errors.MiddlewareError(AddLogJob))
 	admin.DELETE("/job", sealog_errors.MiddlewareError(DelLogJob))
-	admin.POST("bulk/job", sealog_errors.MiddlewareError(BulkAddLogJob))
-	admin.DELETE("bulk/job", sealog_errors.MiddlewareError(BulkDelLogJob))
+	admin.POST("/jobs", sealog_errors.MiddlewareError(BulkAddLogJob))
+	admin.DELETE("/jobs", sealog_errors.MiddlewareError(BulkDelLogJob))
 }
 
 //添加任务
@@ -27,6 +27,10 @@ func AddLogJob(ctx *gin.Context) error {
 		return errors.New("params_error")
 	}
 
+	err := etcd.DistributeMasterJob(jobs)
+	if err != nil {
+		return err
+	}
 	runJobs := etcd.GetAllRuningJob()
 	if ip, ok := runJobs[jobs.JobName]; ok { // 更新job
 		err := etcd.DistributeJob(ip, jobs)

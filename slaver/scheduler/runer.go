@@ -70,7 +70,7 @@ func (this *Scheduler) eventWorker(job *common.Jobs) {
 		jobLock     *etcd.JobLock
 		err         error
 	)
-	jobLock = etcd.GjobMgr.CreateJobLock(job.Topic)
+	jobLock = etcd.GjobMgr.CreateJobLock(job.JobName)
 	err = jobLock.TryToLock()
 	//defer jobLock.Unlock()
 	if err == nil {

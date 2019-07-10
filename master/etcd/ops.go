@@ -2,7 +2,6 @@ package etcd
 
 import (
 	"context"
-	"fmt"
 	"github.com/coreos/etcd/clientv3"
 	"sea_log/common"
 	"sea_log/logs"
@@ -31,7 +30,7 @@ func GetNodeInfo() map[string]common.NodeInfo {
 		return nodeinfos
 	}
 	for _, v := range getResp.Kvs {
-		if nodeInfo, err := common.UnmarshalJobInfo(v.Value); err != nil {
+		if nodeInfo, err := common.UnmarshalJobInfo(v.Value); err == nil {
 			nodeinfos[utils.GetNodeIp(string(v.Key))] = nodeInfo
 		}
 	}
@@ -73,8 +72,7 @@ func GetAllRuningJob() map[string]string {
 
 // 向某个节点注册job
 func DistributeJob(ip string, jobs common.Jobs) error {
-	fmt.Println(ip)
-	fmt.Println("come in")
+	logs.INFO("slaver node: " + ip + " come in")
 	jobBytes, err := common.PackJob(jobs)
 	if err != nil {
 		logs.ERROR(err)
@@ -89,8 +87,25 @@ func DistributeJob(ip string, jobs common.Jobs) error {
 
 // 向某个节点注销job
 func UnDistributeJob(ip string, jobName string) error {
-	EtcdClient.KV.Delete(context.Background(), conf.MasterConf.Jobs+jobName)
+	_, err := EtcdClient.KV.Delete(context.Background(), conf.MasterConf.Jobs+jobName)
+	if err != nil {
+		return err
+	}
 	if _, err := EtcdClient.KV.Delete(context.Background(), utils.ExtractJobSave(ip, jobName)); err != nil {
+		logs.ERROR(err)
+		return err
+	}
+	return nil
+}
+
+//向master中注册一个job
+func DistributeMasterJob(jobs common.Jobs) error {
+	jobBytes, err := common.PackJob(jobs)
+	if err != nil {
+		logs.ERROR(err)
+		return err
+	}
+	if _, err = EtcdClient.KV.Put(context.Background(), conf.MasterConf.Jobs+jobs.JobName, string(jobBytes)); err != nil {
 		logs.ERROR(err)
 		return err
 	}

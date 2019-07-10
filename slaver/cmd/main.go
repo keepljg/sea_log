@@ -51,7 +51,7 @@ func main() {
 
 	router := router.Router()
 	srv := &http.Server{
-		Addr:    ":9100",
+		Addr:    ":8100",
 		Handler: router,
 	}
 	go func() {

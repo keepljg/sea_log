@@ -18,5 +18,5 @@ func main() {
 	}
 	schedule.InitSchedule()
 	r := router.Router()
-	r.Run(":9200")
+	r.Run(":8200")
 }

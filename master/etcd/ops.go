@@ -30,7 +30,7 @@ func GetNodeInfo() map[string]common.NodeInfo {
 		return nodeinfos
 	}
 	for _, v := range getResp.Kvs {
-		if nodeInfo, err := common.UnmarshalJobInfo(v.Value); err != nil {
+		if nodeInfo, err := common.UnmarshalJobInfo(v.Value); err == nil {
 			nodeinfos[utils.GetNodeIp(string(v.Key))] = nodeInfo
 		}
 	}
@@ -72,7 +72,7 @@ func GetAllRuningJob() map[string]string {
 }
 
 // 向某个节点注册job
-func DistributeJob(ip string, jobs common.Jobs)  error {
+func DistributeJob(ip string, jobs common.Jobs) error {
 	logs.INFO("slaver node: " + ip + " come in")
 	jobBytes, err := common.PackJob(jobs)
 	if err != nil {

@@ -75,12 +75,17 @@ func (this *Scheduler) eventWorker(job *common.Jobs) {
 	err = jobLock.TryToLock()
 	//defer jobLock.Unlock()
 	if err == nil {
+		jobBytes, err := common.PackJob(*job)
+		if err != nil {
+			logs.ERROR(err)
+			return
+		}
 		//创建租约
 		leaseId, leaseKeepActiveChan, _, _, err := etcd.CreateLeaseAndKeepAlive(etcd_ops.GjobMgr.Lease, 5)
 		if err != nil {
 			return
 		}
-		etcd_ops.GjobMgr.Kv.Put(context.Background(), conf.JobConf.JobSave, job.JobName, clientv3.WithLease(leaseId))
+		etcd_ops.GjobMgr.Kv.Put(context.Background(), conf.JobConf.JobSave+job.JobName, string(jobBytes), clientv3.WithLease(leaseId))
 
 		jobWorkInfo = utils.NewJobWorkInfo(job)
 		if jobWork, ok := this.JobWorkTable[job.Topic]; !ok {

@@ -12,7 +12,14 @@ func Mapping(prefix string, app *gin.Engine) {
 	admin.GET("jobs", ListAllLogJob)
 	admin.GET("nodes", sealog_errors.MiddlewareError(ListNodes))
 	admin.GET("nodes/pree", ListNodePree)
+	admin.GET("regjobs", GetAllDistributejob)
+}
 
+//获取所有已经注册的任务
+func GetAllDistributejob(ctx *gin.Context) {
+	data := etcd.GetAllDistributeJob()
+	ctx.JSON(common.SuccessWithDate(data))
+	return
 }
 
 func ListAllLogJob(ctx *gin.Context) {

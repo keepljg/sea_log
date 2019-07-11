@@ -104,7 +104,7 @@ func (this *Scheduler) restartLogJob() {
 		select {
 		case <-t.C:
 			allJobs := etcd.GetAllJob()
-			allRunJob := etcd.GetAllRuningJob()
+			allRunJob := etcd.GetAllDistributeJob()
 			if len(allRunJob) > len(allJobs) {
 				panic("running job gt all job")
 			}

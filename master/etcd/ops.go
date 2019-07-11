@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/coreos/etcd/clientv3"
 	"sea_log/common"
+	"sea_log/etcd"
 	"sea_log/logs"
 	"sea_log/master/conf"
 	"sea_log/master/utils"
@@ -79,7 +80,13 @@ func DistributeJob(ip string, jobs common.Jobs) error {
 		logs.ERROR(err)
 		return err
 	}
-	if _, err = EtcdClient.KV.Put(context.Background(), utils.ExtractJobSave(ip, jobs.JobName), string(jobBytes)); err != nil {
+	//创建租约
+	leaseId, _, _, _, err := etcd.CreateLease(Lease, 120)
+	if err != nil {
+		return err
+	}
+
+	if _, err = EtcdClient.KV.Put(context.Background(), utils.ExtractJobSave(ip, jobs.JobName), string(jobBytes), clientv3.WithLease(leaseId)); err != nil {
 		logs.ERROR(err)
 		return err
 	}

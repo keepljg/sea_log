@@ -1,4 +1,4 @@
-package etcd
+package etcd_ops
 
 import (
 	"context"

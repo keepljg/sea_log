@@ -9,7 +9,7 @@ import (
 	"sea_log/logs"
 	"sea_log/slaver/conf"
 	"sea_log/slaver/es"
-	"sea_log/slaver/etcd"
+	"sea_log/slaver/etcd_ops"
 	"sea_log/slaver/kafka"
 	"sea_log/slaver/router"
 	"sea_log/slaver/scheduler"
@@ -29,7 +29,7 @@ func main() {
 	}
 
 	// 初始化etcd
-	if err := etcd.InitJobMgr(); err != nil {
+	if err := etcd_ops.InitJobMgr(); err != nil {
 		logs.ERROR(err)
 		return
 	}
@@ -63,7 +63,7 @@ func main() {
 
 	// 等待中断信号以优雅地关闭服务器(等待5秒)
 	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Interrupt, os.Kill)
 	<-quit
 	logs.INFO("Shutdown Server ...")
 

@@ -5,7 +5,24 @@ import (
 	"github.com/coreos/etcd/clientv3"
 )
 
+//创建租约
 func CreateLease(lease clientv3.Lease, ttl int64) (clientv3.LeaseID, <-chan *clientv3.LeaseKeepAliveResponse, context.Context, context.CancelFunc, error) {
+	var (
+		leaseGrantResp      *clientv3.LeaseGrantResponse
+		leaseId             clientv3.LeaseID
+		leaseKeepActiveChan <-chan *clientv3.LeaseKeepAliveResponse
+		err                 error
+	)
+	ctx, cancelFunc := context.WithCancel(context.TODO())
+
+	if leaseGrantResp, err = lease.Grant(context.Background(), ttl); err != nil {
+		return leaseId, leaseKeepActiveChan, ctx, cancelFunc, err
+	}
+	return leaseGrantResp.ID, leaseKeepActiveChan, ctx, cancelFunc, nil
+}
+
+//创建租约并且续租
+func CreateLeaseAndKeepAlive(lease clientv3.Lease, ttl int64) (clientv3.LeaseID, <-chan *clientv3.LeaseKeepAliveResponse, context.Context, context.CancelFunc, error) {
 	var (
 		leaseGrantResp      *clientv3.LeaseGrantResponse
 		leaseId             clientv3.LeaseID

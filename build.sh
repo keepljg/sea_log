@@ -14,8 +14,8 @@ then
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o sea_log slaver/cmd/main.go
     echo "rm -rf sea_log..."
     ssh -p 58422 $log147 << log
-#        mkdir -p /www/sea_log/slaver/cmd/
-#        mkdir -p /www/sea_log/slaver/conf/
+        mkdir -p /www/sea_log/slaver/cmd/
+        mkdir -p /www/sea_log/slaver/conf/
         rm -rf /www/sea_log/slaver/cmd/sea_log
 #        kill -9 `ps -ef | grep sea_log | grep -v "grep" | awk '{print $2}'`
         exit
@@ -23,12 +23,6 @@ log
     echo "上传sea_log..."
     scp -P 58422 $basepath/sea_log $log147:/www/sea_log/slaver/cmd/
     scp -P 58422 $basepath/slaver/conf/conf.ini $log147:/www/sea_log/slaver/conf/
-#    ssh -p 58422 $log147 << log
-#        cd /www/sea_log/slaver/cmd/
-#        nohup ./sea_log &
-#        tail nohup.out
-#        exit
-#log
 
 
 elif [ $1 == "log148" ]
@@ -37,21 +31,14 @@ then
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o sea_log slaver/cmd/main.go
     echo "rm -rf sea_log..."
     ssh -p 58422 $log148 << log
-#        mkdir -p /www/sea_log/slaver/cmd/
-#        mkdir -p /www/sea_log/slaver/conf/
+        mkdir -p /www/sea_log/slaver/cmd/
+        mkdir -p /www/sea_log/slaver/conf/
         rm -rf /www/sea_log/slaver/cmd/sea_log
-#        kill -9 `ps -ef | grep sea_log | grep -v "grep" | awk '{print $2}'`
         exit
 log
     echo "上传sea_log..."
     scp -P 58422 $basepath/sea_log $log148:/www/sea_log/slaver/cmd/
     scp -P 58422 $basepath/slaver/conf/conf.ini $log148:/www/sea_log/slaver/conf/
-#    ssh -p 58422 $log148 << log
-#        cd /www/sea_log/slaver/cmd/
-#        nohup ./sea_log &
-#        tail nohup.out
-#        exit
-#log
 
 
 elif [ $1 == "log188" ]
@@ -60,43 +47,30 @@ then
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o sea_log slaver/cmd/main.go
     echo "rm -rf sea_log..."
     ssh -p 58422 $log188 << log
-#        mkdir -p /www/sea_log/slaver/cmd/
-#        mkdir -p /www/sea_log/slaver/conf/
+        mkdir -p /www/sea_log/slaver/cmd/
+        mkdir -p /www/sea_log/slaver/conf/
         rm -rf /www/sea_log/slaver/cmd/sea_log
-#        kill -9 `ps -ef | grep sea_log | grep -v "grep" | awk '{print $2}'`
         exit
 log
     echo "上传sea_log..."
     scp -P 58422 $basepath/sea_log $log188:/www/sea_log/slaver/cmd/
     scp -P 58422 $basepath/slaver/conf/conf.ini $log188:/www/sea_log/slaver/conf/
-#    ssh -p 58422 $log188 << log
-#        cd /www/sea_log/slaver/cmd/
-#        nohup ./sea_log &
-#        tail nohup.out
-#        exit
-#log
+
 
 elif [ $1 == "log189" ]
 then
     echo "编译中..."
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o sea_log_master master/cmd/main.go
-    echo "rm -rf sea_log_master..."
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o sea_log slaver/cmd/main.go
+    echo "rm -rf sea_log..."
     ssh -p 58422 $log189 << log
-#        mkdir -p /www/sea_log/master/cmd/
-#        mkdir -p /www/sea_log/master/conf/
-        rm -rf /www/sea_log/master/cmd/sea_log_master
-#        kill -9 `ps -ef | grep sea_log_master | grep -v "grep" | awk '{print $2}'`
+        mkdir -p /www/sea_log/slaver/cmd/
+        mkdir -p /www/sea_log/slaver/conf/
+        rm -rf /www/sea_log/slaver/cmd/sea_log
         exit
 log
     echo "上传sea_log..."
-    scp -P 58422 $basepath/sea_log_master $log189:/www/sea_log/master/cmd/
-    scp -P 58422 $basepath/master/conf//conf.ini $log189:/www/sea_log/master/conf/
-#    ssh -p 58422 $log189 << log
-#        cd /www/sea_log/master/cmd/
-#        nohup ./sea_log_master &
-#        tail nohup.out
-#        exit
-#log
+    scp -P 58422 $basepath/sea_log $log189:/www/sea_log/slaver/cmd/
+    scp -P 58422 $basepath/slaver/conf//conf.ini $log189:/www/sea_log/slaver/conf/
 
 else
     echo "缺失部署环境参数！！！"

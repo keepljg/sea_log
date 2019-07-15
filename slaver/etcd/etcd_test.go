@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.etcd.io/etcd/clientv3"
+	"math/rand"
 	"testing"
 	"time"
 )
@@ -40,4 +41,22 @@ func TestInitJobMgr(t *testing.T) {
 	//resp := clientv3.OpGet(utils.JOB_LOCK_DIR + "tutuapp_test",clientv3.WithPrefix())
 	//fmt.Println(string(resp.KeyBytes()))
 	//fmt.Println(string(resp.ValueBytes()))
+}
+
+
+func RangeInt(start, end int) int {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return r.Intn(end-start+1) + start
+}
+
+
+func BenchmarkRandom(b *testing.B)  {
+	//arr := make([]int, 0, 1000)
+	//for i :=0; i < 1000; i ++ {
+	//	arr = append(arr, i)
+	//}
+	for i := 0; i < 40; i ++ {
+		arr := make([]int, 0, 40)
+		arr = append(arr, RangeInt(0, 9999))
+	}
 }

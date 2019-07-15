@@ -5,7 +5,6 @@ import (
 	"net/http"
 )
 
-type errorHandlefunc func(*gin.Context) error
 
 type errorMsg struct {
 	Code    int    `json:"code"`
@@ -43,6 +42,8 @@ func GetError(err error) errorMsg {
 	}
 	return errorMsgs[err.Error()]
 }
+
+type errorHandlefunc func(*gin.Context) error
 
 func MiddlewareError(handlefunc errorHandlefunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {

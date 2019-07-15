@@ -8,6 +8,7 @@ import (
 
 var EtcdClient *clientv3.Client
 var EtcdWatch clientv3.Watcher
+var Lease clientv3.Lease // 租约
 
 func InitJobMgr() error {
 	var (
@@ -22,5 +23,6 @@ func InitJobMgr() error {
 		return err
 	}
 	EtcdWatch = clientv3.NewWatcher(EtcdClient)
+	Lease = clientv3.NewLease(EtcdClient)
 	return nil
 }

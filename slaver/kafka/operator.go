@@ -6,7 +6,7 @@ import (
 	"sea_log/logs"
 	"sea_log/slaver/conf"
 	"sea_log/slaver/es"
-	"sea_log/slaver/etcd"
+	"sea_log/slaver/etcd_ops"
 	"sea_log/slaver/utils"
 	"time"
 	//"sync"
@@ -32,7 +32,7 @@ func SendToKafka(datas []string, topic string) error {
 	return err
 }
 
-func ConsumerFromKafka(info *utils.JobWorkInfo, lock *etcd.JobLock, logCount chan int) {
+func ConsumerFromKafka(info *utils.JobWorkInfo, lock *etcd_ops.JobLock, logCount chan int) {
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_0_1_0
 	client, err := sarama.NewClient([]string{conf.KafkaConf.Addr}, config)
@@ -64,7 +64,7 @@ func ConsumerFromKafka(info *utils.JobWorkInfo, lock *etcd.JobLock, logCount cha
 		go consume(consumer, offsetManager, v, info, lock, logCount)
 	}
 }
-func consume(c sarama.Consumer, om sarama.OffsetManager, p int32, info *utils.JobWorkInfo, lock *etcd.JobLock, logCount chan int) {
+func consume(c sarama.Consumer, om sarama.OffsetManager, p int32, info *utils.JobWorkInfo, lock *etcd_ops.JobLock, logCount chan int) {
 	var (
 		pom    sarama.PartitionOffsetManager
 		pc     sarama.PartitionConsumer

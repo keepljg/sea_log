@@ -1,4 +1,4 @@
-package etcd
+package etcd_ops
 
 import (
 	"context"
@@ -43,7 +43,6 @@ func TestInitJobMgr(t *testing.T) {
 	//fmt.Println(string(resp.ValueBytes()))
 }
 
-
 func RangeInt(start, end int) int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return r.Intn(end-start+1) + start
@@ -58,5 +57,31 @@ func BenchmarkRandom(b *testing.B)  {
 	for i := 0; i < 40; i ++ {
 		arr := make([]int, 0, 40)
 		arr = append(arr, RangeInt(0, 9999))
+	}
+}
+
+func TestCreateLease(t *testing.T) {
+	var (
+		config clientv3.Config
+		client *clientv3.Client
+		err    error
+	)
+	config = clientv3.Config{
+		Endpoints:            []string{"192.168.183.103:2379"},
+		DialKeepAliveTimeout: 5 * time.Second,
+	}
+	if client, err = clientv3.New(config); err != nil {
+		panic(err)
+	}
+	lease := clientv3.NewLease(client)
+	leaseGrantResp, err := lease.Grant(context.Background(), 60)
+	if err != nil {
+		panic(err)
+	}
+
+	leaseId := leaseGrantResp.ID
+	_, err =client.KV.Put(context.Background(), "/test/123", "v", clientv3.WithLease(leaseId))
+	if err != nil {
+		panic(err)
 	}
 }

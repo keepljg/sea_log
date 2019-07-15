@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/coreos/etcd/clientv3"
 	"sea_log/common"
+	"sea_log/etcd"
 	"sea_log/logs"
 	"sea_log/master/conf"
 	"sea_log/master/utils"
@@ -63,8 +64,28 @@ func GetAllRuningJob() map[string]string {
 		return res
 	}
 	for _, v := range getResp.Kvs {
-		if ipName, err := utils.ExtractRuningJob(string(v.Key)); err == nil {
+		if ipName, err := utils.ExtractRuningJob(conf.JobConf.JobLock, string(v.Key)); err == nil {
 			res[ipName[1]] = ipName[0]
+		}
+	}
+	return res
+}
+
+// 获取所有已经注册的job，并删除重复的job
+func GetAllDistributeJob() map[string]string {
+	res := make(map[string]string)
+	getResp, err := EtcdClient.KV.Get(context.Background(), conf.JobConf.JobSave, clientv3.WithPrefix(), clientv3.WithKeysOnly())
+	if err != nil {
+		logs.ERROR(err)
+		return res
+	}
+	for _, v := range getResp.Kvs {
+		if ipName, err := utils.ExtractRuningJob(conf.JobConf.JobSave, string(v.Key)); err == nil {
+			if _, ok := res[ipName[1]]; !ok {
+				res[ipName[1]] = ipName[0]
+			} else {
+				EtcdClient.KV.Delete(context.Background(), utils.ExtractJobSave(ipName[0], ipName[1]))
+			}
 		}
 	}
 	return res
@@ -78,7 +99,13 @@ func DistributeJob(ip string, jobs common.Jobs) error {
 		logs.ERROR(err)
 		return err
 	}
-	if _, err = EtcdClient.KV.Put(context.Background(), utils.ExtractJobSave(ip, jobs.JobName), string(jobBytes)); err != nil {
+	//创建租约
+	leaseId, _, _, _, err := etcd.CreateLease(Lease, 120)
+	if err != nil {
+		return err
+	}
+
+	if _, err = EtcdClient.KV.Put(context.Background(), utils.ExtractJobSave(ip, jobs.JobName), string(jobBytes), clientv3.WithLease(leaseId)); err != nil {
 		logs.ERROR(err)
 		return err
 	}

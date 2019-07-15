@@ -1,9 +1,10 @@
-package etcd
+package etcd_ops
 
 import (
 	"context"
 	"errors"
 	"github.com/coreos/etcd/clientv3"
+	"sea_log/etcd"
 	"sea_log/logs"
 	"sea_log/slaver/conf"
 )
@@ -22,7 +23,7 @@ func (this *JobLock) TryToLock() error {
 	var (
 		leaseId             clientv3.LeaseID
 		leaseKeepActiveChan <-chan *clientv3.LeaseKeepAliveResponse
-		ctx                 context.Context
+		//ctx                 context.Context
 		cancelFunc          context.CancelFunc
 		txn                 clientv3.Txn
 		lockKey             string
@@ -30,15 +31,15 @@ func (this *JobLock) TryToLock() error {
 		err                 error
 	)
 	// 创建一个租约
-	if leaseId, leaseKeepActiveChan, ctx, cancelFunc, err = CreateLease(this.lease, 10); err != nil {
+	if leaseId, leaseKeepActiveChan, _, cancelFunc, err = etcd.CreateLeaseAndKeepAlive(this.lease, 10); err != nil {
 		logs.ERROR(err)
 		goto FAIL
 	}
 	// 进行续租
-	if leaseKeepActiveChan, err = this.lease.KeepAlive(ctx, leaseId); err != nil {
-		logs.ERROR(err)
-		goto FAIL
-	}
+	//if leaseKeepActiveChan, err = this.lease.KeepAlive(ctx, leaseId); err != nil {
+	//	logs.ERROR(err)
+	//	goto FAIL
+	//}
 
 	//进行监听 cancelfunc
 	go func() {

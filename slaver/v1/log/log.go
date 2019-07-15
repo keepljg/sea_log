@@ -5,6 +5,7 @@ import (
 	"github.com/json-iterator/go"
 	"sea_log/common"
 	"sea_log/common/sealog_errors"
+	logs1 "sea_log/logs"
 	"sea_log/slaver/kafka"
 )
 
@@ -27,7 +28,6 @@ func LogToKafka(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(&logToKafkaForm); err != nil {
 		return err
 	}
-
 	if err := jsoniter.UnmarshalFromString(logToKafkaForm.Logs, &logs); err != nil {
 		return err
 	}
@@ -41,6 +41,7 @@ func LogToKafka(ctx *gin.Context) error {
 	if err := kafka.SendToKafka(kafkaLogs, logToKafkaForm.Topic); err != nil {
 		return err
 	}
+	logs1.INFO("log to kafka!!!")
 	ctx.JSON(common.Success())
 	return nil
 }

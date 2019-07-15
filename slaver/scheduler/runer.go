@@ -6,9 +6,10 @@ import (
 	"github.com/coreos/etcd/clientv3"
 	"golang.org/x/net/context"
 	"sea_log/common"
+	"sea_log/etcd"
 	"sea_log/logs"
 	"sea_log/slaver/conf"
-	"sea_log/slaver/etcd"
+	"sea_log/slaver/etcd_ops"
 	"sea_log/slaver/kafka"
 	"sea_log/slaver/utils"
 	"time"
@@ -26,9 +27,9 @@ func InitScheduler() {
 // 注销所有信息
 func CancelSelf() {
 	Gscheduler.HeartCancelFunc()
-	etcd.GjobMgr.Kv.Delete(context.Background(), conf.JobConf.JobInfo, clientv3.WithPrefix())
-	etcd.GjobMgr.Kv.Delete(context.Background(), conf.JobConf.JobLock, clientv3.WithPrefix())
-	etcd.GjobMgr.Kv.Delete(context.Background(), conf.JobConf.JobSave, clientv3.WithPrefix())
+	etcd_ops.GjobMgr.Kv.Delete(context.Background(), conf.JobConf.JobInfo, clientv3.WithPrefix())
+	etcd_ops.GjobMgr.Kv.Delete(context.Background(), conf.JobConf.JobLock, clientv3.WithPrefix())
+	etcd_ops.GjobMgr.Kv.Delete(context.Background(), conf.JobConf.JobSave, clientv3.WithPrefix())
 }
 
 func NewScheduler() {
@@ -67,13 +68,25 @@ func (this *Scheduler) ScheuleLoop() {
 func (this *Scheduler) eventWorker(job *common.Jobs) {
 	var (
 		jobWorkInfo *utils.JobWorkInfo
-		jobLock     *etcd.JobLock
+		jobLock     *etcd_ops.JobLock
 		err         error
 	)
-	jobLock = etcd.GjobMgr.CreateJobLock(job.JobName)
+	jobLock = etcd_ops.GjobMgr.CreateJobLock(job.JobName)
 	err = jobLock.TryToLock()
 	//defer jobLock.Unlock()
 	if err == nil {
+		jobBytes, err := common.PackJob(*job)
+		if err != nil {
+			logs.ERROR(err)
+			return
+		}
+		//创建租约
+		leaseId, leaseKeepActiveChan, _, _, err := etcd.CreateLeaseAndKeepAlive(etcd_ops.GjobMgr.Lease, 5)
+		if err != nil {
+			return
+		}
+		etcd_ops.GjobMgr.Kv.Put(context.Background(), conf.JobConf.JobSave+job.JobName, string(jobBytes), clientv3.WithLease(leaseId))
+
 		jobWorkInfo = utils.NewJobWorkInfo(job)
 		if jobWork, ok := this.JobWorkTable[job.Topic]; !ok {
 			this.JobWorkTable[job.Topic] = jobWorkInfo
@@ -82,11 +95,27 @@ func (this *Scheduler) eventWorker(job *common.Jobs) {
 			// 重新开启新任务
 			this.reEventWork(jobWork, job, jobLock)
 		}
+
+		//进行监听 cancelfunc
+		go func() {
+			var (
+				leaseKeepResp *clientv3.LeaseKeepAliveResponse
+			)
+			for {
+				select {
+				case leaseKeepResp = <-leaseKeepActiveChan: // 租约消失
+					if leaseKeepResp == nil {
+						goto END
+					}
+				}
+			}
+		END:
+		}()
 	}
 }
 
 // 更新任务
-func (this *Scheduler) reEventWork(jobWork *utils.JobWorkInfo, newJob *common.Jobs, lock *etcd.JobLock) {
+func (this *Scheduler) reEventWork(jobWork *utils.JobWorkInfo, newJob *common.Jobs, lock *etcd_ops.JobLock) {
 	var (
 		jobWorkInfo *utils.JobWorkInfo
 	)
@@ -121,7 +150,7 @@ func WatcherJobs() {
 		watcherReversion int64
 		watchChan        clientv3.WatchChan
 	)
-	if getResp, err = etcd.GjobMgr.Kv.Get(context.TODO(), conf.JobConf.JobSave, clientv3.WithPrefix()); err != nil {
+	if getResp, err = etcd_ops.GjobMgr.Kv.Get(context.TODO(), conf.JobConf.JobSave, clientv3.WithPrefix()); err != nil {
 		logs.ERROR(err)
 		return
 	}
@@ -135,7 +164,7 @@ func WatcherJobs() {
 	go func() {
 		// 从getResp header 下一个版本进行监听
 		watcherReversion = getResp.Header.Revision + 1
-		watchChan = etcd.GjobMgr.Watcher.Watch(context.TODO(), conf.JobConf.JobSave, clientv3.WithRev(watcherReversion), clientv3.WithPrefix())
+		watchChan = etcd_ops.GjobMgr.Watcher.Watch(context.TODO(), conf.JobConf.JobSave, clientv3.WithRev(watcherReversion), clientv3.WithPrefix())
 		for eachChan := range watchChan {
 			for _, v := range eachChan.Events {
 				switch v.Type {
@@ -173,12 +202,12 @@ func (this *Scheduler) restartLogJob() {
 					err   error
 				)
 				// 所有在etcd中的log任务
-				if jobs, err = etcd.GjobMgr.ListLogJobs(); err != nil {
+				if jobs, err = etcd_ops.GjobMgr.ListLogJobs(); err != nil {
 					logs.ERROR(err)
 					return
 				}
 				// 所有抢到锁的任务
-				if locks, err = etcd.GjobMgr.ListLogLocks(); err != nil {
+				if locks, err = etcd_ops.GjobMgr.ListLogLocks(); err != nil {
 					logs.ERROR(err)
 					return
 				}
@@ -203,7 +232,7 @@ func (this *Scheduler) CalculatingPressure() {
 		counts   []int
 	)
 	//  用做信息上报和心跳
-	leaseId, _, _, cancelFunc, err := etcd.CreateLease(etcd.GjobMgr.Lease, 10)
+	leaseId, leaseKeepActiveChan, _, cancelFunc, err := etcd.CreateLeaseAndKeepAlive(etcd_ops.GjobMgr.Lease, 10)
 	if err != nil {
 		panic(fmt.Sprintf("CalculatingPressure CreateLease err: %v", err))
 	}
@@ -221,7 +250,7 @@ func (this *Scheduler) CalculatingPressure() {
 			// 上报信息
 			nodeInfo.JobCount = len(this.JobWorkTable)
 			infoBytes, _ := json.Marshal(&nodeInfo)
-			etcd.GjobMgr.Kv.Put(context.Background(), conf.JobConf.JobInfo, string(infoBytes), clientv3.WithLease(leaseId))
+			etcd_ops.GjobMgr.Kv.Put(context.Background(), conf.JobConf.JobInfo, string(infoBytes), clientv3.WithLease(leaseId))
 			logs.INFO("node info is ", nodeInfo)
 
 			counts = []int{}
@@ -230,5 +259,20 @@ func (this *Scheduler) CalculatingPressure() {
 			t.Reset(time.Second * 10)
 		}
 	}
-	return
+
+	//进行监听 cancelfunc
+	go func() {
+		var (
+			leaseKeepResp *clientv3.LeaseKeepAliveResponse
+		)
+		for {
+			select {
+			case leaseKeepResp = <-leaseKeepActiveChan: // 租约消失
+				if leaseKeepResp == nil {
+					goto END
+				}
+			}
+		}
+	END:
+	}()
 }

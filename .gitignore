@@ -6,5 +6,6 @@ master/cmd/go_build_main_go
 slaver/cmd/debug
 slaver/cmd/slaver_debug
 master/cmd/master_debug
-master/cmd/go_build_main_go.exe
-slaver/cmd/slave_debug.exe
+*.exe
+sea_log
+sea_log_master

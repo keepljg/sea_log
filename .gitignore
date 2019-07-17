@@ -4,6 +4,7 @@ go.sum
 *.ini
 master/cmd/go_build_main_go
 slaver/cmd/debug
+slaver/cmd/slaver
 slaver/cmd/slaver_debug
 master/cmd/master_debug
 *.exe

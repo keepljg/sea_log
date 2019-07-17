@@ -238,6 +238,23 @@ func (this *Scheduler) CalculatingPressure() {
 	}
 	this.HeartCancelFunc = cancelFunc
 	t := time.NewTimer(time.Second * 10)
+
+	//进行监听 cancelfunc
+	go func() {
+		var (
+			leaseKeepResp *clientv3.LeaseKeepAliveResponse
+		)
+		for {
+			select {
+			case leaseKeepResp = <-leaseKeepActiveChan: // 租约消失
+				if leaseKeepResp == nil {
+					goto END
+				}
+			}
+		}
+	END:
+	}()
+
 	for {
 		select {
 		case count := <-this.logCount:
@@ -259,20 +276,4 @@ func (this *Scheduler) CalculatingPressure() {
 			t.Reset(time.Second * 10)
 		}
 	}
-
-	//进行监听 cancelfunc
-	go func() {
-		var (
-			leaseKeepResp *clientv3.LeaseKeepAliveResponse
-		)
-		for {
-			select {
-			case leaseKeepResp = <-leaseKeepActiveChan: // 租约消失
-				if leaseKeepResp == nil {
-					goto END
-				}
-			}
-		}
-	END:
-	}()
 }

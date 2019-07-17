@@ -5,16 +5,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"sea_log/logs"
 	"sea_log/myLoadGen/lib"
+<<<<<<< HEAD
 	"sync"
 	"wetalk/lib/logger"
 
 	"math"
+=======
+>>>>>>> f3ddbf5a84dd6201ad9c619609dee06921fb8b95
 	"sync/atomic"
 	"time"
 )
-
 
 type MyGenerator struct {
 	caller      lib.Caller           // 调用器。
@@ -71,8 +74,12 @@ func (gen *MyGenerator) init() error {
 			return err
 		}
 		gen.tickets = tickets
+<<<<<<< HEAD
 	} else {   // 接口监控
 		gen.cond = sync.NewCond(new(sync.Mutex))
+=======
+	} else { // 接口监控
+>>>>>>> f3ddbf5a84dd6201ad9c619609dee06921fb8b95
 		gen.Looping = true
 		gen.reLoop = make(chan struct{})
 	}
@@ -236,13 +243,13 @@ func (gen *MyGenerator) genLoop() {
 				&gen.status, lib.STATUS_STOPPING, lib.STATUS_STARTED) // 重新启动gen
 			logs.INFO("Restart Gen, Prepare Next Time Calculation")
 			t.Reset(gen.durationNS)
-		//case <-gen.reLoop: // 新一轮通知
-		//
-		//	gen.resultCh = make(chan *lib.CallResult, 50)
-		//
-		//	atomic.CompareAndSwapUint32(
-		//		&gen.status, lib.STATUS_STOPPING, lib.STATUS_STARTED) // 重新启动gen
-		//	logger.Info("Restart Gen, Prepare Next Time Calculation")
+			//case <-gen.reLoop: // 新一轮通知
+			//
+			//	gen.resultCh = make(chan *lib.CallResult, 50)
+			//
+			//	atomic.CompareAndSwapUint32(
+			//		&gen.status, lib.STATUS_STOPPING, lib.STATUS_STARTED) // 重新启动gen
+			//	logger.Info("Restart Gen, Prepare Next Time Calculation")
 		case <-gen.ctx.Done():
 			gen.prepareToStop(gen.ctx.Err())
 			return
@@ -361,7 +368,11 @@ func (gen *MyGenerator) CallCount() int64 {
 //		}
 //}
 
+<<<<<<< HEAD
 func (gen *MyGenerator) loopCountResult (cond *sync.Cond){
+=======
+func (gen *MyGenerator) loopCountResult() {
+>>>>>>> f3ddbf5a84dd6201ad9c619609dee06921fb8b95
 	var max, min, all float64
 	var count int
 	min = float64(gen.timeoutNS)
@@ -380,8 +391,6 @@ func (gen *MyGenerator) loopCountResult (cond *sync.Cond){
 	cond.Signal()
 }
 
-
-
 func (gen *MyGenerator) CountResult() {
 	countMap := make(map[lib.RetCode]int)
 	errMap := make(map[string]int)
@@ -391,7 +400,7 @@ func (gen *MyGenerator) CountResult() {
 	}
 
 	var total int
-	logger.Info("RetCode Count:")
+	logs.INFO("RetCode Count:")
 	for k, v := range countMap {
 		codePlain := lib.GetRetCodePlain(k)
 		logs.INFO(fmt.Sprintf("  Code plain: %s (%d), Count: %d.\n",

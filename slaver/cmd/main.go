@@ -11,6 +11,7 @@ import (
 	"sea_log/slaver/es"
 	"sea_log/slaver/etcd_ops"
 	"sea_log/slaver/kafka"
+	"sea_log/slaver/middler"
 	"sea_log/slaver/router"
 	"sea_log/slaver/scheduler"
 	"time"
@@ -45,6 +46,8 @@ func main() {
 		logs.ERROR(err)
 		return
 	}
+
+	middler.InitGen()
 
 	scheduler.InitScheduler()
 	defer scheduler.CancelSelf()

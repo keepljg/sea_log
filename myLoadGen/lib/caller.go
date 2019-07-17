@@ -18,19 +18,19 @@ type Caller interface {
 
 // get 调用器
 type GetCaller struct {
-	name string
+	name    string
 	request *Crawler
 }
 
-
-func NewGetCaller(name string, url string,  userAgent map[string]string, ) Caller {
+func NewGetCaller(name string, url string, userAgent map[string]string) Caller {
 	return &GetCaller{
 		name:    name,
 		request: NewCrawler(userAgent, url),
 	}
 }
+
 // get 请求 返回空 RawReq， post 请求 可随机返回RawReq
-func (this *GetCaller) BuildReq() RawReq{
+func (this *GetCaller) BuildReq() RawReq {
 	return RawReq{}
 }
 
@@ -38,33 +38,28 @@ func (this *GetCaller) Call(req []byte, timeoutNS time.Duration) ([]byte, error)
 	return this.request.Get(timeoutNS)
 }
 
-
-
 func (this *GetCaller) FuncName() string {
 	return this.name
 }
 
-
-
 type PostCaller struct {
-	name string
+	name    string
 	request *Crawler
-	body []byte
-	typ string
+	body    []byte
+	typ     string
 }
-
 
 // post 调用器
 func NewPostCaller(name, typ string, url string, body []byte, userAgent map[string]string) Caller {
 	return &PostCaller{
 		name:    name,
 		request: NewCrawler(userAgent, url),
-		typ:typ,
-		body:body,
+		typ:     typ,
+		body:    body,
 	}
 }
 
-func (this *PostCaller) BuildReq() RawReq{
+func (this *PostCaller) BuildReq() RawReq {
 	return RawReq{
 		Req: this.body,
 	}
@@ -77,7 +72,6 @@ func (this *PostCaller) Call(req []byte, timeoutNS time.Duration) ([]byte, error
 		return this.request.PostFrom(req, timeoutNS)
 	}
 }
-
 
 func (this *PostCaller) FuncName() string {
 	return this.name

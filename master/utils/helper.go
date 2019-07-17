@@ -17,7 +17,7 @@ func ExtractJobName(jobKey string) string {
 	return strings.TrimPrefix(jobKey, conf.JobConf.JobSave)
 }
 
-func ExtractRuningJob(pre ,jobKey string) ([]string, error) {
+func ExtractRuningJob(pre, jobKey string) ([]string, error) {
 	info := strings.TrimPrefix(jobKey, pre)
 	res := strings.Split(info, "/")
 	if len(res) != 2 {

@@ -16,7 +16,7 @@ func TestMyGenerator_Start(t *testing.T) {
 		LPS:        100,
 		DurationNS: 10 * time.Second,
 	}
-	gen, err  := NewGenerator(pset)
+	gen, err := NewGenerator(pset)
 	if err != nil {
 		panic(err)
 	}
@@ -25,7 +25,7 @@ func TestMyGenerator_Start(t *testing.T) {
 
 func TestCaller(t *testing.T) {
 	caller := lib.NewGetCaller("test", "https://api3.feng.com/v1/flow/excellent?split=7&sort=yes", nil)
-	resp, err := caller.Call([]byte{}, 1 * time.Second)
+	resp, err := caller.Call([]byte{}, 1*time.Second)
 	if err != nil {
 		t.Error(err)
 	}
@@ -37,7 +37,7 @@ func TestNewGenerator(t *testing.T) {
 	go func() {
 		for {
 			select {
-			case  i, ok  := <- a:
+			case i, ok := <-a:
 				if ok {
 					fmt.Println(i)
 				}
@@ -47,7 +47,7 @@ func TestNewGenerator(t *testing.T) {
 	}()
 	a <- 2
 	close(a)
-	time.Sleep( 5 * time.Second)
+	time.Sleep(5 * time.Second)
 	a = make(chan int, 10)
 	a <- 1
 	a <- 2

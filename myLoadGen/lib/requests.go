@@ -13,7 +13,7 @@ import (
 
 type Crawler struct {
 	userAgent map[string]string
-	url string
+	url       string
 }
 
 func NewCrawler(userAgent map[string]string, url string) *Crawler {
@@ -29,8 +29,7 @@ func (this *Crawler) GetFakeHeader(request *http.Request, useAgent map[string]st
 	}
 }
 
-
-func (this *Crawler) Get(timeout  time.Duration,) ([]byte, error) {
+func (this *Crawler) Get(timeout time.Duration) ([]byte, error) {
 	var client *http.Client
 	var transport *http.Transport
 	transport = &http.Transport{
@@ -62,12 +61,12 @@ func (this *Crawler) Get(timeout  time.Duration,) ([]byte, error) {
 }
 
 // 表单提交
-func (this *Crawler) PostFrom(req []byte, timeout  time.Duration) ([]byte, error) {
+func (this *Crawler) PostFrom(req []byte, timeout time.Duration) ([]byte, error) {
 
 	var (
-		err       error
-		request   *http.Request
-		resp      *http.Response
+		err     error
+		request *http.Request
+		resp    *http.Response
 	)
 	request, err = http.NewRequest("POST", this.url, bytes.NewReader(req))
 	if err != nil {
@@ -86,11 +85,11 @@ func (this *Crawler) PostFrom(req []byte, timeout  time.Duration) ([]byte, error
 	return body, nil
 }
 
-func (this *Crawler) PostJson(req []byte, timeout  time.Duration,) ([]byte, error) {
+func (this *Crawler) PostJson(req []byte, timeout time.Duration) ([]byte, error) {
 	var (
-		err       error
-		request   *http.Request
-		resp      *http.Response
+		err     error
+		request *http.Request
+		resp    *http.Response
 	)
 	request, err = http.NewRequest("POST", this.url, bytes.NewReader(req))
 	if err != nil {

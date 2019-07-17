@@ -68,7 +68,7 @@ func (gen *MyGenerator) init() error {
 			return err
 		}
 		gen.tickets = tickets
-	} else {   // 接口监控
+	} else { // 接口监控
 		gen.cond = sync.NewCond(new(sync.Mutex))
 		gen.Looping = true
 		gen.reLoop = make(chan struct{})
@@ -358,13 +358,13 @@ func (gen *MyGenerator) CallCount() int64 {
 //		}
 //}
 
-func (gen *MyGenerator) loopCountResult (cond *sync.Cond){
+func (gen *MyGenerator) loopCountResult(cond *sync.Cond) {
 
 	var max, min, all float64
 	var count int
-	min = float64(gen.timeoutNS)
+	min = float64(gen.durationNS)
 	for r := range gen.resultCh {
-		e := float64(r.Elapse / time.Second)
+		e := float64(r.Elapse / time.Millisecond)
 		all += e
 		if e > max {
 			max = e
@@ -374,7 +374,9 @@ func (gen *MyGenerator) loopCountResult (cond *sync.Cond){
 		}
 		count++
 	}
-	logs.INFO(fmt.Sprintf("load %d times, max spend %2.f, min spend %.2f, average spend %2.f", count, max, min, all/float64(count)))
+	if count != 0 {
+		logs.INFO(fmt.Sprintf("load %d times, max spend %.5f ms, min spend %.5f ms, average spend %.5f ms", count, max, min, all/float64(count)))
+	}
 	cond.Signal()
 }
 
@@ -383,7 +385,7 @@ func (gen *MyGenerator) CountResult() {
 	errMap := make(map[string]int)
 	for r := range gen.resultCh {
 		countMap[r.Code] = countMap[r.Code] + 1
-		errMap[r.Msg] ++
+		errMap[r.Msg]++
 	}
 
 	var total int

@@ -24,11 +24,11 @@ func (this *JobLock) TryToLock() error {
 		leaseId             clientv3.LeaseID
 		leaseKeepActiveChan <-chan *clientv3.LeaseKeepAliveResponse
 		//ctx                 context.Context
-		cancelFunc          context.CancelFunc
-		txn                 clientv3.Txn
-		lockKey             string
-		txnResp             *clientv3.TxnResponse
-		err                 error
+		cancelFunc context.CancelFunc
+		txn        clientv3.Txn
+		lockKey    string
+		txnResp    *clientv3.TxnResponse
+		err        error
 	)
 	// 创建一个租约
 	if leaseId, leaseKeepActiveChan, _, cancelFunc, err = etcd.CreateLeaseAndKeepAlive(this.lease, 10); err != nil {

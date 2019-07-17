@@ -5,7 +5,6 @@ import (
 	"net/http"
 )
 
-
 type errorMsg struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`

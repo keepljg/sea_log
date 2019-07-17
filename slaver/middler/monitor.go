@@ -12,7 +12,7 @@ var gen lib.Generator
 
 func InitGen() {
 	pset := myLoadGen.ParamSet{
-		Caller: nil,
+		Caller:     nil,
 		DurationNS: 10 * time.Second,
 	}
 	var err error
@@ -25,10 +25,9 @@ func InitGen() {
 
 func Mintor() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		start := time.Now().UnixNano()
+		start := time.Now()
 		ctx.Next()
-		end := time.Now().UnixNano()
-		elapsedTime := time.Duration(end - start)
+		elapsedTime := time.Since(start)
 		gen.SendResult(&lib.CallResult{
 			FuncName: ctx.Request.URL.Path,
 			//Code:     0,

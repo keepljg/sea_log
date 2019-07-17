@@ -31,7 +31,7 @@ func TestInitJobMgr(t *testing.T) {
 	//jobByte, _ := common.PackJob(job)
 	//client.KV.Put(context.Background(), "/master/jobs/test", string(jobByte))
 
-	resp, err :=client.KV.Delete(context.Background(), "/master", clientv3.WithPrefix(), clientv3.WithPrevKV())
+	resp, err := client.KV.Delete(context.Background(), "/master", clientv3.WithPrefix(), clientv3.WithPrevKV())
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -48,13 +48,12 @@ func RangeInt(start, end int) int {
 	return r.Intn(end-start+1) + start
 }
 
-
-func BenchmarkRandom(b *testing.B)  {
+func BenchmarkRandom(b *testing.B) {
 	//arr := make([]int, 0, 1000)
 	//for i :=0; i < 1000; i ++ {
 	//	arr = append(arr, i)
 	//}
-	for i := 0; i < 40; i ++ {
+	for i := 0; i < 40; i++ {
 		arr := make([]int, 0, 40)
 		arr = append(arr, RangeInt(0, 9999))
 	}
@@ -80,7 +79,7 @@ func TestCreateLease(t *testing.T) {
 	}
 
 	leaseId := leaseGrantResp.ID
-	_, err =client.KV.Put(context.Background(), "/test/123", "v", clientv3.WithLease(leaseId))
+	_, err = client.KV.Put(context.Background(), "/test/123", "v", clientv3.WithLease(leaseId))
 	if err != nil {
 		panic(err)
 	}

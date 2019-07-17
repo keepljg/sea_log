@@ -8,13 +8,7 @@ import (
 	"math"
 	"sea_log/logs"
 	"sea_log/myLoadGen/lib"
-<<<<<<< HEAD
 	"sync"
-	"wetalk/lib/logger"
-
-	"math"
-=======
->>>>>>> f3ddbf5a84dd6201ad9c619609dee06921fb8b95
 	"sync/atomic"
 	"time"
 )
@@ -74,12 +68,8 @@ func (gen *MyGenerator) init() error {
 			return err
 		}
 		gen.tickets = tickets
-<<<<<<< HEAD
 	} else {   // 接口监控
 		gen.cond = sync.NewCond(new(sync.Mutex))
-=======
-	} else { // 接口监控
->>>>>>> f3ddbf5a84dd6201ad9c619609dee06921fb8b95
 		gen.Looping = true
 		gen.reLoop = make(chan struct{})
 	}
@@ -368,11 +358,8 @@ func (gen *MyGenerator) CallCount() int64 {
 //		}
 //}
 
-<<<<<<< HEAD
 func (gen *MyGenerator) loopCountResult (cond *sync.Cond){
-=======
-func (gen *MyGenerator) loopCountResult() {
->>>>>>> f3ddbf5a84dd6201ad9c619609dee06921fb8b95
+
 	var max, min, all float64
 	var count int
 	min = float64(gen.timeoutNS)

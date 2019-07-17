@@ -2,34 +2,35 @@ package myLoadGen
 
 import (
 	"fmt"
+	"sea_log/myLoadGen/lib"
 	"testing"
 	"time"
 )
 
-//func TestMyGenerator_Start(t *testing.T) {
-//	caller := lib.NewGetCaller("test", "https://api3.feng.com/v1/flow/excellent?split=7&sort=yes", nil)
-//	pset := ParamSet{
-//		Caller:     caller,
-//		TimeoutNS:  300 * time.Millisecond,
-//		LPS:        100,
-//		DurationNS: 10 * time.Second,
-//		ResultCh:   make(chan *lib.CallResult, 50),
-//	}
-//	gen, err  := NewGenerator(pset)
-//	if err != nil {
-//		panic(err)
-//	}
-//	gen.Start()
-//}
-//
-//func TestCaller(t *testing.T) {
-//	caller := lib.NewGetCaller("test", "https://api3.feng.com/v1/flow/excellent?split=7&sort=yes", nil)
-//	resp, err := caller.Call([]byte{}, 1 * time.Second)
-//	if err != nil {
-//		t.Error(err)
-//	}
-//	t.Log(string(resp))
-//}
+// 接口荷载测试
+func TestMyGenerator_Start(t *testing.T) {
+	caller := lib.NewGetCaller("test", "https://www.baidu.com", nil)
+	pset := ParamSet{
+		Caller:     caller,
+		TimeoutNS:  300 * time.Millisecond,
+		LPS:        100,
+		DurationNS: 10 * time.Second,
+	}
+	gen, err  := NewGenerator(pset)
+	if err != nil {
+		panic(err)
+	}
+	gen.Start()
+}
+
+func TestCaller(t *testing.T) {
+	caller := lib.NewGetCaller("test", "https://api3.feng.com/v1/flow/excellent?split=7&sort=yes", nil)
+	resp, err := caller.Call([]byte{}, 1 * time.Second)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(string(resp))
+}
 
 func TestNewGenerator(t *testing.T) {
 	a := make(chan int, 10)

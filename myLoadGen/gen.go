@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sea_log/logs"
 	"sea_log/myLoadGen/lib"
+	"sync"
 	"wetalk/lib/logger"
 
 	"math"
@@ -29,6 +30,7 @@ type MyGenerator struct {
 	resultCh    chan *lib.CallResult // 调用结果通道。
 	Looping     bool
 	reLoop      chan struct{}
+	cond        *sync.Cond
 }
 
 // NewGenerator 会新建一个载荷发生器。
@@ -70,6 +72,7 @@ func (gen *MyGenerator) init() error {
 		}
 		gen.tickets = tickets
 	} else {   // 接口监控
+		gen.cond = sync.NewCond(new(sync.Mutex))
 		gen.Looping = true
 		gen.reLoop = make(chan struct{})
 	}
@@ -224,8 +227,11 @@ func (gen *MyGenerator) genLoop() {
 				&gen.status, lib.STATUS_STARTED, lib.STATUS_STOPPING) // 暂时关闭gen
 			logs.INFO("Temporary Close Gen, Prepare start Calculation")
 			close(gen.resultCh)
-			gen.loopCountResult()
+			gen.cond.L.Lock()
+			gen.cond.Wait()
+			gen.cond.L.Unlock()
 			gen.resultCh = make(chan *lib.CallResult, 50)
+			go gen.loopCountResult(gen.cond)
 			atomic.CompareAndSwapUint32(
 				&gen.status, lib.STATUS_STOPPING, lib.STATUS_STARTED) // 重新启动gen
 			logs.INFO("Restart Gen, Prepare Next Time Calculation")
@@ -289,6 +295,7 @@ func (gen *MyGenerator) Start() bool {
 		// 设置状态为已启动。
 		atomic.StoreUint32(&gen.status, lib.STATUS_STARTED)
 		go gen.genLoop()
+		go gen.loopCountResult(gen.cond)
 
 	}
 	return true
@@ -354,7 +361,7 @@ func (gen *MyGenerator) CallCount() int64 {
 //		}
 //}
 
-func (gen *MyGenerator) loopCountResult (){
+func (gen *MyGenerator) loopCountResult (cond *sync.Cond){
 	var max, min, all float64
 	var count int
 	min = float64(gen.timeoutNS)
@@ -370,6 +377,7 @@ func (gen *MyGenerator) loopCountResult (){
 		count++
 	}
 	logs.INFO(fmt.Sprintf("load %d times, max spend %2.f, min spend %.2f, average spend %2.f", count, max, min, all/float64(count)))
+	cond.Signal()
 }
 
 
